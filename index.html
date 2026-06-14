@@ -1,1121 +1,1105 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- ============================================================
-     SITHULIYA — Premium Land & Real Estate
-     Single-file production build · Three.js r128 · Tailwind CDN
-     Apple Design Language · WebGL GLSL Terrain · Glassmorphism
-     ============================================================ -->
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Sithuliya — Own the Earth</title>
-
-<!-- Three.js r128 -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<!-- Tailwind CSS -->
-<script src="https://cdn.tailwindcss.com"></script>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ceylon Help Care Service</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-/* ── Reset & base ──────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-:root {
-  --emerald:   #00ffaa;
-  --emerald-dim: rgba(0,255,170,0.12);
-  --emerald-glow: rgba(0,255,170,0.25);
-  --gold:      #d4af37;
-  --gold-dim:  rgba(212,175,55,0.15);
-  --white:     #ffffff;
-  --silver:    #a1a1a6;  /* Apple secondary label */
-  --glass-bg:  rgba(255,255,255,0.04);
-  --glass-border: rgba(255,255,255,0.10);
-  --glass-border-hover: rgba(0,255,170,0.35);
-  --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
-          "Helvetica Neue", Arial, sans-serif;
-}
-
-html { scroll-behavior: smooth; background: #000; }
-
-body {
-  font-family: var(--font);
-  background: #000000;
-  color: var(--white);
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  cursor: none; /* custom cursor */
-}
-
-/* ── Custom cursor ─────────────────────────────────────────── */
-#cursor-dot {
-  position: fixed; width: 6px; height: 6px; border-radius: 50%;
-  background: var(--emerald); pointer-events: none; z-index: 9999;
-  transform: translate(-50%,-50%);
-  box-shadow: 0 0 10px var(--emerald), 0 0 20px var(--emerald-glow);
-  transition: width .2s, height .2s, opacity .2s;
-}
-#cursor-ring {
-  position: fixed; width: 32px; height: 32px; border-radius: 50%;
-  border: 1px solid rgba(0,255,170,0.45); pointer-events: none; z-index: 9998;
-  transform: translate(-50%,-50%);
-  transition: width .35s cubic-bezier(.22,1,.36,1),
-              height .35s cubic-bezier(.22,1,.36,1),
-              border-color .25s;
-}
-body:has(a:hover,button:hover,.prop-card:hover) #cursor-ring {
-  width: 52px; height: 52px; border-color: rgba(0,255,170,.7);
-}
-
-/* ── WebGL canvas — fixed behind everything ────────────────── */
-#webgl-canvas {
-  position: fixed; top: 0; left: 0;
-  width: 100%; height: 100%;
-  display: block; z-index: 0;
-}
-
-/* ── Gradient vignette on top of canvas ────────────────────── */
-#vignette {
-  position: fixed; inset: 0; z-index: 1; pointer-events: none;
-  background:
-    radial-gradient(ellipse 80% 60% at 50% 40%, transparent 0%, #000 100%),
-    linear-gradient(to bottom, rgba(0,0,0,.55) 0%, transparent 18%,
-                   transparent 75%, rgba(0,0,0,.9) 100%);
-}
-
-/* ── Page scroll layer ─────────────────────────────────────── */
-#page { position: relative; z-index: 10; }
-
-/* ── Navbar ────────────────────────────────────────────────── */
-nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-  height: 60px;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 40px;
-  background: rgba(0,0,0,0.45);
-  backdrop-filter: blur(20px) saturate(1.6);
-  -webkit-backdrop-filter: blur(20px) saturate(1.6);
-  border-bottom: 0.5px solid var(--glass-border);
-  transition: background .4s ease, border-color .4s ease;
-}
-nav.nav-solid {
-  background: rgba(0,0,0,0.72);
-  border-bottom-color: rgba(0,255,170,0.12);
-}
-.nav-logo {
-  font-size: 20px; font-weight: 600; letter-spacing: -.03em;
-  background: linear-gradient(160deg, #fff 0%, #a1a1a6 100%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  background-clip: text; text-decoration: none;
-  transition: opacity .2s;
-}
-.nav-logo:hover { opacity: .75; }
-.nav-links { display: flex; gap: 32px; align-items: center; }
-.nav-links a {
-  font-size: 13px; font-weight: 400; letter-spacing: -.01em;
-  color: var(--silver); text-decoration: none;
-  transition: color .2s;
-}
-.nav-links a:hover { color: var(--white); }
-.nav-pill {
-  font-size: 13px; font-weight: 500; letter-spacing: -.01em;
-  color: #000; background: var(--emerald);
-  padding: 7px 20px; border-radius: 980px;
-  border: none; cursor: pointer; text-decoration: none;
-  transition: opacity .2s, box-shadow .3s;
-  box-shadow: 0 0 0 rgba(0,255,170,0);
-}
-.nav-pill:hover {
-  opacity: .88;
-  box-shadow: 0 0 24px rgba(0,255,170,.4);
-}
-
-/* ── Hero ──────────────────────────────────────────────────── */
-#hero {
-  min-height: 100vh;
-  display: flex; flex-direction: column;
-  justify-content: center; align-items: flex-start;
-  padding: 0 7vw; padding-top: 80px;
-  position: relative;
-}
-.hero-eyebrow {
-  font-size: 11px; font-weight: 500; letter-spacing: .18em;
-  text-transform: uppercase; color: var(--emerald);
-  margin-bottom: 24px; opacity: 0;
-  animation: riseIn .7s cubic-bezier(.22,1,.36,1) .3s forwards;
-  display: flex; align-items: center; gap: 10px;
-}
-.hero-eyebrow::before {
-  content: ''; display: block; width: 28px; height: 1px;
-  background: var(--emerald);
-}
-.hero-h1 {
-  font-size: clamp(72px, 11vw, 160px);
-  font-weight: 700; letter-spacing: -.055em; line-height: .92;
-  background: linear-gradient(175deg, #ffffff 0%, #636366 100%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 28px; opacity: 0;
-  animation: riseIn .85s cubic-bezier(.22,1,.36,1) .5s forwards;
-}
-.hero-sub {
-  font-size: clamp(16px,1.6vw,20px); font-weight: 300; line-height: 1.65;
-  color: var(--silver); max-width: 460px; margin-bottom: 48px;
-  opacity: 0; animation: riseIn .8s cubic-bezier(.22,1,.36,1) .7s forwards;
-  letter-spacing: -.01em;
-}
-.hero-cta-row {
-  display: flex; gap: 14px; align-items: center;
-  opacity: 0; animation: riseIn .8s cubic-bezier(.22,1,.36,1) .9s forwards;
-}
-.btn-primary {
-  font-size: 15px; font-weight: 500; letter-spacing: -.02em;
-  color: #000; background: var(--emerald);
-  padding: 14px 32px; border-radius: 980px;
-  border: none; cursor: pointer; text-decoration: none;
-  display: inline-block;
-  transition: opacity .2s, box-shadow .3s, transform .2s;
-  box-shadow: 0 0 0 rgba(0,255,170,0);
-  position: relative; overflow: hidden;
-}
-.btn-primary::after {
-  content: ''; position: absolute; inset: 0; border-radius: 980px;
-  background: linear-gradient(135deg, rgba(255,255,255,.25) 0%, transparent 60%);
-  pointer-events: none;
-}
-.btn-primary:hover {
-  opacity: .9; transform: translateY(-1px);
-  box-shadow: 0 0 40px rgba(0,255,170,.5), 0 8px 24px rgba(0,0,0,.4);
-}
-.btn-secondary {
-  font-size: 15px; font-weight: 400; letter-spacing: -.02em;
-  color: var(--silver);
-  padding: 14px 24px; border-radius: 980px;
-  border: 0.5px solid var(--glass-border);
-  background: transparent; cursor: pointer; text-decoration: none;
-  display: inline-flex; align-items: center; gap: 8px;
-  transition: color .2s, border-color .2s;
-}
-.btn-secondary:hover { color: var(--white); border-color: rgba(255,255,255,.3); }
-.btn-secondary svg { width: 14px; height: 14px; }
-
-/* Scroll indicator */
-.scroll-indicator {
-  position: absolute; bottom: 48px; left: 7vw;
-  display: flex; align-items: center; gap: 12px;
-  font-size: 11px; font-weight: 400; letter-spacing: .12em;
-  text-transform: uppercase; color: rgba(161,161,166,.5);
-  opacity: 0; animation: riseIn .7s ease 1.3s forwards;
-}
-.scroll-indicator::before {
-  content: ''; width: 1px; height: 48px;
-  background: linear-gradient(to bottom, rgba(0,255,170,.5), transparent);
-  animation: pulseBar 2.4s ease-in-out infinite;
-}
-@keyframes pulseBar {
-  0%,100% { opacity: .5; transform: scaleY(1); }
-  50%      { opacity: 1;  transform: scaleY(1.2); }
-}
-
-/* ── Stats ticker ──────────────────────────────────────────── */
-#stats {
-  position: relative; z-index: 10;
-  display: grid; grid-template-columns: repeat(4,1fr);
-  border-top: 0.5px solid rgba(255,255,255,.06);
-  border-bottom: 0.5px solid rgba(255,255,255,.06);
-}
-.stat-cell {
-  padding: 48px 40px;
-  border-right: 0.5px solid rgba(255,255,255,.06);
-  opacity: 0; transform: translateY(20px);
-  transition: opacity .6s ease, transform .6s ease;
-}
-.stat-cell.visible { opacity: 1; transform: none; }
-.stat-cell:last-child { border-right: none; }
-.stat-n {
-  font-size: 56px; font-weight: 700; letter-spacing: -.04em; line-height: 1;
-  background: linear-gradient(160deg,#fff 0%,#636366 100%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  background-clip: text; margin-bottom: 8px;
-}
-.stat-unit { font-size: 32px; font-weight: 300; }
-.stat-lbl {
-  font-size: 12px; font-weight: 400; letter-spacing: .04em;
-  color: var(--silver);
-}
-
-/* ── Section shared ────────────────────────────────────────── */
-.section-eyebrow {
-  font-size: 11px; font-weight: 500; letter-spacing: .18em;
-  text-transform: uppercase; color: var(--emerald);
-  margin-bottom: 16px; display: flex; align-items: center; gap: 10px;
-}
-.section-eyebrow::before {
-  content: ''; display: block; width: 20px; height: 1px;
-  background: var(--emerald);
-}
-.section-title {
-  font-size: clamp(38px,4.5vw,64px); font-weight: 700;
-  letter-spacing: -.04em; line-height: 1.05;
-  background: linear-gradient(175deg,#fff 0%,#636366 100%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  background-clip: text; margin-bottom: 16px;
-}
-.section-body {
-  font-size: 17px; font-weight: 300; line-height: 1.7;
-  color: var(--silver); letter-spacing: -.01em;
-}
-
-/* ── Property cards ────────────────────────────────────────── */
-#properties { position: relative; z-index: 10; padding: 120px 7vw; }
-.cards-grid {
-  display: grid;
-  grid-template-columns: repeat(3,1fr);
-  gap: 18px; margin-top: 72px;
-}
-.prop-card {
-  position: relative; overflow: hidden;
-  background: var(--glass-bg);
-  border: 0.5px solid var(--glass-border);
-  border-radius: 20px;
-  padding: 40px 36px;
-  cursor: pointer;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  transform-style: preserve-3d;
-  will-change: transform;
-  transition: border-color .4s ease, box-shadow .4s ease;
-}
-.prop-card:hover {
-  border-color: var(--glass-border-hover);
-  box-shadow: 0 0 60px rgba(0,255,170,.07);
-}
-/* Glare layer — moved by JS */
-.card-glare {
-  position: absolute; inset: 0; border-radius: 20px;
-  background: radial-gradient(
-    circle at var(--gx,50%) var(--gy,50%),
-    rgba(255,255,255,.08) 0%,
-    transparent 60%
-  );
-  pointer-events: none; opacity: 0;
-  transition: opacity .4s ease;
-}
-.prop-card:hover .card-glare { opacity: 1; }
-
-.card-badge {
-  display: inline-flex; align-items: center; gap: 6px;
-  font-size: 10px; font-weight: 600; letter-spacing: .18em;
-  text-transform: uppercase;
-  color: var(--emerald); margin-bottom: 28px;
-}
-.badge-dot {
-  width: 5px; height: 5px; border-radius: 50%;
-  background: var(--emerald);
-  animation: badgePulse 2s ease-in-out infinite;
-}
-@keyframes badgePulse {
-  0%,100% { opacity:1; box-shadow: 0 0 0 0 rgba(0,255,170,.5); }
-  50%      { opacity:.6; box-shadow: 0 0 0 4px rgba(0,255,170,0); }
-}
-.card-number {
-  position: absolute; top: 32px; right: 32px;
-  font-size: 80px; font-weight: 700; letter-spacing: -.06em;
-  line-height: 1; color: rgba(0,255,170,.04);
-  pointer-events: none; user-select: none;
-}
-.card-title {
-  font-size: 28px; font-weight: 700; letter-spacing: -.04em;
-  line-height: 1.15; color: var(--white); margin-bottom: 12px;
-}
-.card-loc {
-  font-size: 12px; font-weight: 400; letter-spacing: .04em;
-  color: rgba(161,161,166,.6); margin-bottom: 20px;
-  display: flex; align-items: center; gap: 5px;
-}
-.card-desc {
-  font-size: 14px; font-weight: 300; line-height: 1.65;
-  color: rgba(161,161,166,.7); margin-bottom: 36px;
-}
-.card-footer {
-  display: flex; justify-content: space-between; align-items: flex-end;
-  padding-top: 24px;
-  border-top: 0.5px solid rgba(255,255,255,.07);
-}
-.card-price {
-  font-size: 22px; font-weight: 600; letter-spacing: -.03em;
-  color: var(--emerald);
-}
-.card-price small {
-  display: block; font-size: 10px; font-weight: 400;
-  letter-spacing: .06em; text-transform: uppercase;
-  color: rgba(161,161,166,.5); margin-bottom: 2px;
-}
-.card-arrow {
-  width: 36px; height: 36px; border-radius: 50%;
-  border: 0.5px solid rgba(255,255,255,.12);
-  display: flex; align-items: center; justify-content: center;
-  color: var(--silver); transition: all .25s ease;
-  flex-shrink: 0;
-}
-.prop-card:hover .card-arrow {
-  background: var(--emerald); color: #000;
-  border-color: var(--emerald);
-  box-shadow: 0 0 18px rgba(0,255,170,.5);
-}
-
-/* ── Feature section ───────────────────────────────────────── */
-#features {
-  position: relative; z-index: 10;
-  padding: 120px 7vw;
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 80px; align-items: start;
-  border-top: 0.5px solid rgba(255,255,255,.06);
-}
-.feat-list { display: flex; flex-direction: column; gap: 0; margin-top: 48px; }
-.feat-item {
-  display: flex; gap: 20px; align-items: flex-start;
-  padding: 28px 0;
-  border-bottom: 0.5px solid rgba(255,255,255,.06);
-  opacity: 0; transform: translateY(16px);
-  transition: opacity .55s ease, transform .55s ease;
-}
-.feat-item.visible { opacity: 1; transform: none; }
-.feat-icon {
-  width: 40px; height: 40px; flex-shrink: 0;
-  border: 0.5px solid rgba(0,255,170,.2);
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--emerald);
-}
-.feat-h { font-size: 15px; font-weight: 500; letter-spacing: -.02em;
-  color: var(--white); margin-bottom: 6px; }
-.feat-p { font-size: 13px; font-weight: 300; line-height: 1.65;
-  color: rgba(161,161,166,.6); }
-
-/* Right column glass panel */
-.glass-panel {
-  background: var(--glass-bg);
-  border: 0.5px solid var(--glass-border);
-  border-radius: 24px;
-  padding: 52px 48px;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  position: relative; overflow: hidden;
-}
-.glass-panel::before {
-  content: '';
-  position: absolute; top: -1px; left: 15%; right: 15%; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(0,255,170,.45), transparent);
-}
-.gp-quote {
-  font-size: clamp(20px,2vw,26px); font-weight: 300; line-height: 1.55;
-  letter-spacing: -.02em; color: rgba(255,255,255,.8);
-  font-style: italic; margin-bottom: 32px;
-}
-.gp-quote::before {
-  content: '\201C'; display: block;
-  font-size: 72px; font-weight: 700; line-height: .8;
-  color: rgba(0,255,170,.15); margin-bottom: -12px;
-}
-.gp-attr {
-  font-size: 11px; font-weight: 500; letter-spacing: .16em;
-  text-transform: uppercase; color: rgba(212,175,55,.65);
-}
-.gp-divider {
-  width: 100%; height: 0.5px;
-  background: rgba(255,255,255,.07);
-  margin: 32px 0;
-}
-.gp-metric {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 28px;
-}
-.gp-m-n {
-  font-size: 36px; font-weight: 700; letter-spacing: -.04em;
-  color: var(--emerald); line-height: 1;
-  margin-bottom: 4px;
-}
-.gp-m-l {
-  font-size: 11px; font-weight: 400; letter-spacing: .06em;
-  color: rgba(161,161,166,.5);
-}
-
-/* ── Contact ───────────────────────────────────────────────── */
-#contact {
-  position: relative; z-index: 10;
-  padding: 120px 7vw;
-  text-align: center;
-  border-top: 0.5px solid rgba(255,255,255,.06);
-}
-#contact .section-title { margin: 0 auto 16px; }
-#contact .section-body { max-width: 480px; margin: 0 auto 48px; }
-
-/* ── Footer ────────────────────────────────────────────────── */
-footer {
-  position: relative; z-index: 10;
-  padding: 72px 7vw 44px;
-  border-top: 0.5px solid rgba(255,255,255,.06);
-  background: rgba(0,0,0,.7);
-  backdrop-filter: blur(8px);
-}
-.footer-top {
-  display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr;
-  gap: 60px; margin-bottom: 64px;
-}
-.footer-brand {
-  font-size: 28px; font-weight: 700; letter-spacing: -.04em;
-  background: linear-gradient(160deg,#fff 0%,#636366 100%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  background-clip: text; margin-bottom: 14px;
-}
-.footer-tagline {
-  font-size: 13px; font-weight: 300; line-height: 1.7;
-  color: rgba(161,161,166,.5); max-width: 240px;
-}
-.footer-col h5 {
-  font-size: 11px; font-weight: 600; letter-spacing: .16em;
-  text-transform: uppercase; color: var(--silver);
-  margin-bottom: 20px;
-}
-.footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 12px; }
-.footer-col ul li a {
-  font-size: 13px; font-weight: 300; color: rgba(161,161,166,.45);
-  text-decoration: none; transition: color .2s;
-}
-.footer-col ul li a:hover { color: var(--silver); }
-.footer-bottom {
-  display: flex; justify-content: space-between; align-items: center;
-  padding-top: 28px;
-  border-top: 0.5px solid rgba(255,255,255,.05);
-  font-size: 11px; font-weight: 300; color: rgba(161,161,166,.3);
-}
-
-/* ── Animations ────────────────────────────────────────────── */
-@keyframes riseIn {
-  from { opacity: 0; transform: translateY(24px); }
-  to   { opacity: 1; transform: none; }
-}
-
-/* ── Reduced motion ────────────────────────────────────────── */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: .01ms !important;
-    transition-duration: .01ms !important;
+  :root {
+    --pink-light: #fce8f3;
+    --pink-mid: #f0a8d0;
+    --pink-deep: #d4539e;
+    --blue-light: #e8f4fd;
+    --blue-mid: #93c5e8;
+    --blue-deep: #3b82c4;
+    --glass-white: rgba(255,255,255,0.72);
+    --glass-border: rgba(255,255,255,0.55);
+    --text-primary: #1a1a2e;
+    --text-secondary: #4a4a6a;
+    --text-muted: #8888aa;
+    --green: #10b981;
+    --gold: #f59e0b;
+    --shadow-soft: 0 8px 40px rgba(180,140,200,0.18);
+    --shadow-card: 0 4px 24px rgba(120,100,180,0.10);
+    --radius-lg: 20px;
+    --radius-xl: 32px;
   }
-}
 
-/* ── Responsive ────────────────────────────────────────────── */
-@media (max-width: 1024px) {
-  nav { padding: 0 24px; }
-  .nav-links { display: none; }
-  #stats { grid-template-columns: repeat(2,1fr); }
-  .cards-grid { grid-template-columns: 1fr; max-width: 520px; margin: 72px auto 0; }
-  #features { grid-template-columns: 1fr; gap: 48px; }
-  .footer-top { grid-template-columns: 1fr 1fr; gap: 40px; }
-}
-@media (max-width: 640px) {
-  #stats { grid-template-columns: 1fr 1fr; }
-  .stat-cell { padding: 32px 24px; }
-  .stat-n { font-size: 40px; }
-  .footer-top { grid-template-columns: 1fr; }
-  body { cursor: auto; }
-  #cursor-dot, #cursor-ring { display: none; }
-}
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #fdf6ff;
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── AMBIENT BACKGROUND ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 70% 60% at 15% 10%, rgba(252,200,230,0.38) 0%, transparent 65%),
+      radial-gradient(ellipse 60% 50% at 85% 20%, rgba(180,220,255,0.35) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 50% 90%, rgba(240,190,255,0.22) 0%, transparent 55%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body > * { position: relative; z-index: 1; }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+  /* ─── HEADER ─── */
+  .main-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(24px) saturate(1.6);
+    -webkit-backdrop-filter: blur(24px) saturate(1.6);
+    background: rgba(255,255,255,0.78);
+    border-bottom: 1px solid rgba(255,255,255,0.6);
+    box-shadow: 0 2px 20px rgba(180,140,200,0.10);
+  }
+
+  .header-container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+
+  .logo-area a { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .logo-img { max-height: 52px; }
+  .logo-text { display: flex; flex-direction: column; }
+  .logo-text span:first-child { font-size: 1.5rem; font-weight: 800; color: var(--green); line-height: 1; }
+  .logo-text span:last-child { font-size: 1rem; font-weight: 700; color: var(--gold); line-height: 1.3; }
+
+  .nav-contact-wrapper { display: flex; align-items: center; gap: 24px; margin-left: auto; }
+
+  .main-nav ul { display: flex; list-style: none; gap: 6px; }
+  .main-nav a {
+    display: flex; align-items: center; gap: 5px;
+    padding: 8px 14px;
+    border-radius: 50px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: all 0.22s ease;
+    letter-spacing: 0.01em;
+  }
+  .main-nav a:hover, .main-nav a.active {
+    background: rgba(212,83,158,0.10);
+    color: var(--pink-deep);
+  }
+
+  .header-contact { display: flex; align-items: center; gap: 12px; }
+
+  .phone-icon-wrapper {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--pink-mid), var(--blue-mid));
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 0.85rem;
+  }
+
+  .phone-info { display: flex; flex-direction: column; line-height: 1.2; }
+  .phone-info span { font-size: 0.72rem; color: var(--text-muted); }
+  .phone-info strong { font-size: 0.88rem; font-weight: 700; color: var(--text-primary); }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 20px; border-radius: 50px;
+    font-size: 0.87rem; font-weight: 600;
+    cursor: pointer; text-decoration: none;
+    border: none; transition: all 0.25s ease;
+    letter-spacing: 0.01em; white-space: nowrap;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--pink-deep) 0%, #7c4fc4 100%);
+    color: white;
+    box-shadow: 0 4px 16px rgba(212,83,158,0.32);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(212,83,158,0.40); }
+
+  .btn-outline {
+    background: var(--glass-white);
+    backdrop-filter: blur(10px);
+    color: var(--text-primary);
+    border: 1.5px solid rgba(212,83,158,0.30);
+  }
+  .btn-outline:hover { border-color: var(--pink-deep); color: var(--pink-deep); transform: translateY(-2px); }
+
+  .btn-sm { padding: 8px 16px; font-size: 0.82rem; }
+
+  .lang-toggle-btn {
+    background: transparent;
+    border: 1.5px solid rgba(212,83,158,0.3);
+    color: var(--pink-deep);
+    padding: 8px 14px;
+    border-radius: 50px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .lang-toggle-btn:hover { background: rgba(212,83,158,0.08); }
+
+  .mobile-menu-btn {
+    display: none;
+    background: none; border: none;
+    font-size: 1.3rem; color: var(--text-primary); cursor: pointer;
+    margin-left: auto;
+  }
+
+  /* ─── HERO ─── */
+  .hero-section { padding: 80px 0 60px; overflow: hidden; }
+
+  .hero-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+
+  .trust-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 18px; border-radius: 50px;
+    background: rgba(212,83,158,0.10);
+    border: 1px solid rgba(212,83,158,0.22);
+    font-size: 0.72rem; font-weight: 700;
+    color: var(--pink-deep); letter-spacing: 0.08em;
+    text-transform: uppercase; margin-bottom: 24px;
+    animation: fadeSlideUp 0.7s ease both;
+  }
+
+  .hero-title {
+    font-size: clamp(2.4rem, 5vw, 3.8rem);
+    font-weight: 800;
+    line-height: 1.12;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+    animation: fadeSlideUp 0.7s 0.1s ease both;
+  }
+
+  .hero-title .text-green {
+    background: linear-gradient(135deg, #10b981, #3b82c4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-desc {
+    font-size: 1.05rem; line-height: 1.7;
+    color: var(--text-secondary); max-width: 480px;
+    margin-bottom: 32px;
+    animation: fadeSlideUp 0.7s 0.2s ease both;
+  }
+
+  .hero-features {
+    display: flex; gap: 20px; flex-wrap: wrap;
+    margin-bottom: 36px;
+    animation: fadeSlideUp 0.7s 0.3s ease both;
+  }
+
+  .feature-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    font-size: 0.82rem; font-weight: 600; color: var(--text-secondary);
+    line-height: 1.4;
+  }
+  .feature-item i {
+    color: var(--pink-deep); font-size: 1rem; margin-top: 1px; flex-shrink: 0;
+  }
+
+  .hero-actions {
+    display: flex; gap: 14px; flex-wrap: wrap;
+    animation: fadeSlideUp 0.7s 0.4s ease both;
+  }
+
+  /* ─── HERO IMAGE / SCULPTURE ─── */
+  .hero-image-area {
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    animation: fadeSlideRight 0.9s 0.2s ease both;
+  }
+
+  .hero-sculpture-wrap {
+    position: relative;
+    width: 420px; height: 420px;
+    max-width: 100%;
+  }
+
+  /* Glowing orbs behind */
+  .sculpture-glow {
+    position: absolute; border-radius: 50%;
+    filter: blur(50px); pointer-events: none;
+  }
+  .sculpture-glow-1 {
+    width: 280px; height: 280px;
+    background: radial-gradient(circle, rgba(240,168,208,0.55), transparent 70%);
+    top: 10%; left: 5%;
+    animation: orb1 7s ease-in-out infinite alternate;
+  }
+  .sculpture-glow-2 {
+    width: 220px; height: 220px;
+    background: radial-gradient(circle, rgba(147,197,232,0.50), transparent 70%);
+    bottom: 8%; right: 5%;
+    animation: orb2 9s ease-in-out infinite alternate;
+  }
+
+  .hero-img-frame {
+    position: relative; z-index: 2;
+    width: 360px; height: 360px; max-width: 100%;
+    border-radius: 50% 42% 60% 38% / 46% 56% 44% 54%;
+    overflow: hidden;
+    border: 3px solid var(--glass-border);
+    box-shadow:
+      0 0 0 12px rgba(255,255,255,0.35),
+      0 24px 64px rgba(180,120,200,0.25),
+      inset 0 0 0 1px rgba(255,255,255,0.5);
+    animation: morphBorder 10s ease-in-out infinite alternate;
+  }
+
+  .hero-img {
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: center;
+    display: block;
+  }
+
+  /* Floating stat chips */
+  .hero-chip {
+    position: absolute; z-index: 4;
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 16px; border-radius: 50px;
+    background: var(--glass-white);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-card);
+    font-size: 0.8rem; font-weight: 600; color: var(--text-primary);
+    white-space: nowrap;
+  }
+  .hero-chip i { color: var(--pink-deep); font-size: 1rem; }
+  .hero-chip-1 { top: 6%; left: -5%; animation: float1 5s ease-in-out infinite; }
+  .hero-chip-2 { bottom: 12%; right: -8%; animation: float2 6s ease-in-out infinite; }
+  .hero-chip-3 { top: 50%; left: -12%; animation: float1 7s 1s ease-in-out infinite; }
+
+  /* ─── PARTICLES ─── */
+  #particles-canvas {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ─── WAVY DIVIDER ─── */
+  .wave-divider { line-height: 0; overflow: hidden; }
+  .wave-divider svg { display: block; width: 100%; }
+
+  /* ─── SERVICES ─── */
+  .services-section { padding: 80px 0; }
+
+  .section-header { text-align: center; margin-bottom: 52px; }
+
+  .section-title-wrapper {
+    display: inline-flex; align-items: center; gap: 12px;
+    margin-bottom: 10px;
+  }
+  .section-title-wrapper h2 {
+    font-size: 2.4rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text-primary);
+  }
+  .section-title-wrapper i { color: var(--green); font-size: 1.3rem; }
+  .section-header p { font-size: 1.05rem; color: var(--text-muted); font-weight: 500; }
+
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+  }
+
+  .service-card {
+    background: var(--glass-white);
+    backdrop-filter: blur(18px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .service-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 48px rgba(180,120,200,0.20);
+  }
+
+  .card-img-wrapper { position: relative; overflow: hidden; height: 200px; }
+  .card-img-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+  .service-card:hover .card-img-wrapper img { transform: scale(1.06); }
+
+  .service-icon {
+    position: absolute; bottom: -18px; right: 20px;
+    width: 44px; height: 44px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 1.1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+    border: 2px solid white;
+  }
+
+  .icon-nursing { background: linear-gradient(135deg, #10b981, #0ea5e9); }
+  .icon-beauty { background: linear-gradient(135deg, var(--pink-deep), #a855f7); }
+  .icon-cleaning { background: linear-gradient(135deg, #3b82c4, #06b6d4); }
+  .icon-driving { background: linear-gradient(135deg, #f59e0b, #ef4444); }
+
+  .card-content { padding: 28px 22px 22px; }
+  .card-content h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 10px; }
+  .card-content p { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 18px; }
+
+  .text-green { color: var(--green); }
+  .text-pink { color: var(--pink-deep); }
+  .text-blue { color: var(--blue-deep); }
+  .text-orange { color: var(--gold); }
+
+  /* Color-coded service buttons */
+  .btn-nursing { background: linear-gradient(135deg, #10b981, #0ea5e9); box-shadow: 0 4px 14px rgba(16,185,129,0.28); }
+  .btn-nursing:hover { box-shadow: 0 8px 20px rgba(16,185,129,0.38); }
+  .btn-beauty { background: linear-gradient(135deg, var(--pink-deep), #a855f7); box-shadow: 0 4px 14px rgba(212,83,158,0.28); }
+  .btn-beauty:hover { box-shadow: 0 8px 20px rgba(212,83,158,0.38); }
+  .btn-cleaning { background: linear-gradient(135deg, #3b82c4, #06b6d4); box-shadow: 0 4px 14px rgba(59,130,196,0.28); }
+  .btn-cleaning:hover { box-shadow: 0 8px 20px rgba(59,130,196,0.38); }
+  .btn-driving { background: linear-gradient(135deg, #f59e0b, #ef4444); box-shadow: 0 4px 14px rgba(245,158,11,0.28); }
+  .btn-driving:hover { box-shadow: 0 8px 20px rgba(245,158,11,0.38); }
+
+  /* ─── BOTTOM BANNER ─── */
+  .bottom-banner { padding: 60px 0; }
+
+  .banner-container {
+    display: flex; align-items: center; gap: 0;
+    background: var(--glass-white);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-soft);
+    overflow: hidden;
+    flex-wrap: wrap;
+  }
+
+  .banner-item {
+    flex: 1; min-width: 200px;
+    display: flex; align-items: center; gap: 16px;
+    padding: 32px 28px;
+    transition: background 0.2s;
+  }
+  .banner-item:hover { background: rgba(212,83,158,0.04); }
+
+  .banner-icon {
+    font-size: 1.8rem;
+    background: linear-gradient(135deg, var(--pink-deep), var(--blue-deep));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    flex-shrink: 0;
+  }
+
+  .banner-text h4 { font-size: 0.92rem; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
+  .banner-text p { font-size: 0.8rem; color: var(--text-muted); }
+
+  .banner-divider {
+    width: 1px; height: 60px; flex-shrink: 0;
+    background: linear-gradient(to bottom, transparent, rgba(212,83,158,0.20), transparent);
+  }
+
+  /* ─── MODALS ─── */
+  .modal {
+    display: none; position: fixed; inset: 0; z-index: 200;
+    align-items: center; justify-content: center;
+    background: rgba(20,10,40,0.5);
+    backdrop-filter: blur(6px);
+  }
+
+  .modal-content {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 40px 36px;
+    max-width: 500px; width: 90%;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.20);
+    position: relative;
+    animation: modalIn 0.3s ease;
+  }
+
+  .modal-content h3 { font-size: 1.3rem; font-weight: 800; margin-bottom: 16px; }
+  .modal-content p { font-size: 0.92rem; color: var(--text-secondary); line-height: 1.7; margin-bottom: 10px; }
+  .mt-15 { margin-top: 16px; }
+
+  .close-btn {
+    position: absolute; top: 16px; right: 20px;
+    font-size: 1.6rem; cursor: pointer; color: var(--text-muted);
+    line-height: 1; transition: color 0.2s;
+  }
+  .close-btn:hover { color: var(--text-primary); }
+
+  /* ─── GLASS MODAL ─── */
+  .glass-modal {
+    display: none; position: fixed; inset: 0; z-index: 300;
+    align-items: center; justify-content: center;
+    background: rgba(20,10,40,0.55);
+    backdrop-filter: blur(10px);
+    transition: opacity 0.3s;
+    opacity: 0;
+  }
+  .glass-modal.show { opacity: 1; }
+
+  .glass-modal-content {
+    background: rgba(255,255,255,0.88);
+    backdrop-filter: blur(30px) saturate(1.8);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-xl);
+    padding: 44px 40px;
+    max-width: 460px; width: 90%;
+    box-shadow: 0 32px 80px rgba(150,80,180,0.22);
+    position: relative;
+    animation: modalIn 0.35s ease;
+  }
+
+  .glass-close-btn {
+    position: absolute; top: 18px; right: 18px;
+    background: rgba(0,0,0,0.06); border: none;
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; cursor: pointer; color: var(--text-muted);
+    transition: background 0.2s;
+  }
+  .glass-close-btn:hover { background: rgba(0,0,0,0.12); }
+
+  .glass-modal-header h3 {
+    font-size: 1.4rem; font-weight: 800; color: var(--text-primary);
+    margin-bottom: 24px;
+    background: linear-gradient(135deg, var(--pink-deep), #7c4fc4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glass-form-group { margin-bottom: 18px; }
+  .glass-form-group label {
+    display: block; font-size: 0.8rem; font-weight: 600;
+    color: var(--text-secondary); margin-bottom: 6px;
+  }
+
+  .glass-input {
+    width: 100%; padding: 12px 16px;
+    border-radius: 12px;
+    border: 1.5px solid rgba(212,83,158,0.20);
+    background: rgba(255,255,255,0.8);
+    font-size: 0.9rem; font-family: inherit;
+    color: var(--text-primary);
+    outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-appearance: none;
+  }
+  .glass-input:focus {
+    border-color: var(--pink-deep);
+    box-shadow: 0 0 0 3px rgba(212,83,158,0.12);
+  }
+  select.glass-input { cursor: pointer; }
+
+  .glass-submit-btn {
+    width: 100%; padding: 14px;
+    background: linear-gradient(135deg, #25d366, #128c7e);
+    color: white; border: none;
+    border-radius: 14px; font-size: 0.95rem; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    gap: 10px; margin-top: 8px; transition: all 0.25s;
+    box-shadow: 0 6px 20px rgba(37,211,102,0.30);
+    font-family: inherit;
+  }
+  .glass-submit-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(37,211,102,0.38); }
+
+  /* ─── FOOTER ─── */
+  .main-footer {
+    background: linear-gradient(160deg, #0f0f1a 0%, #1a0f2e 100%);
+    color: white;
+    padding: 44px 0 24px;
+    margin-top: 40px;
+  }
+
+  .footer-inner {
+    display: flex; flex-direction: column;
+    align-items: center; gap: 16px; text-align: center;
+  }
+
+  .footer-logo span:first-child { font-size: 1.5rem; font-weight: 800; color: var(--green); }
+  .footer-logo span:last-child { font-size: 1rem; font-weight: 700; color: var(--gold); display: block; }
+
+  .footer-copyright { font-size: 0.88rem; color: #aaa; }
+
+  .footer-credit {
+    font-size: 0.82rem; color: #666;
+    border-top: 1px solid #222;
+    width: 100%; padding-top: 16px; text-align: center;
+    letter-spacing: 0.03em;
+  }
+  .footer-credit a { color: var(--green); text-decoration: none; font-weight: 600; }
+  .footer-credit a:hover { text-decoration: underline; }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeSlideRight {
+    from { opacity: 0; transform: translateX(30px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes float1 {
+    0%, 100% { transform: translateY(0px) rotate(-2deg); }
+    50%       { transform: translateY(-12px) rotate(2deg); }
+  }
+  @keyframes float2 {
+    0%, 100% { transform: translateY(0px) rotate(1deg); }
+    50%       { transform: translateY(-10px) rotate(-1deg); }
+  }
+  @keyframes orb1 {
+    from { transform: translate(0, 0) scale(1); }
+    to   { transform: translate(20px, -20px) scale(1.1); }
+  }
+  @keyframes orb2 {
+    from { transform: translate(0, 0) scale(1); }
+    to   { transform: translate(-15px, 15px) scale(0.95); }
+  }
+  @keyframes morphBorder {
+    0%   { border-radius: 50% 42% 60% 38% / 46% 56% 44% 54%; }
+    25%  { border-radius: 42% 58% 48% 52% / 54% 44% 56% 46%; }
+    50%  { border-radius: 56% 44% 40% 60% / 48% 52% 48% 52%; }
+    75%  { border-radius: 44% 56% 56% 44% / 52% 48% 52% 48%; }
+    100% { border-radius: 38% 62% 44% 56% / 60% 40% 60% 40%; }
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.94) translateY(10px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  @keyframes particleDrift {
+    0%   { opacity: 0; transform: translateY(0) scale(0.6); }
+    15%  { opacity: 1; }
+    85%  { opacity: 1; }
+    100% { opacity: 0; transform: translateY(-120px) scale(1.1); }
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 900px) {
+    .hero-container { grid-template-columns: 1fr; gap: 40px; }
+    .hero-image-area { order: -1; }
+    .hero-sculpture-wrap { width: 320px; height: 320px; margin: 0 auto; }
+    .hero-img-frame { width: 280px; height: 280px; }
+    .hero-chip-3 { display: none; }
+    .banner-container { flex-direction: column; }
+    .banner-divider { width: 80%; height: 1px; }
+    .nav-contact-wrapper { display: none; flex-direction: column; align-items: flex-start; gap: 16px; }
+    .nav-contact-wrapper.active { display: flex; }
+    .main-nav ul { flex-direction: column; }
+    .phone-info, .phone-icon-wrapper { display: none; }
+    .mobile-menu-btn { display: block; }
+    .header-container { flex-wrap: wrap; }
+  }
+
+  @media (max-width: 600px) {
+    .hero-section { padding: 48px 0 40px; }
+    .section-title-wrapper h2 { font-size: 1.8rem; }
+    .hero-title { font-size: 2rem; }
+    .hero-actions { flex-direction: column; }
+    .hero-actions .btn { width: 100%; justify-content: center; }
+    .hero-features { gap: 14px; }
+    .services-section { padding: 52px 0; }
+    .glass-modal-content { padding: 32px 24px; }
+    .services-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
 </style>
 </head>
+
 <body>
 
-<!-- ── Custom cursor ──────────────────────────────────────── -->
-<div id="cursor-dot"></div>
-<div id="cursor-ring"></div>
+<!-- Floating particles canvas -->
+<canvas id="particles-canvas"></canvas>
 
-<!-- ── WebGL canvas ───────────────────────────────────────── -->
-<canvas id="webgl-canvas"></canvas>
-
-<!-- ── Vignette overlay ───────────────────────────────────── -->
-<div id="vignette" aria-hidden="true"></div>
-
-<!-- ═══════════════════════════════════════════════════════════
-     PAGE CONTENT
-     ═══════════════════════════════════════════════════════════ -->
-<div id="page">
-
-  <!-- ── Navigation ──────────────────────────────────────── -->
-  <nav id="navbar" role="navigation" aria-label="Main">
-    <a href="#" class="nav-logo">Sithuliya</a>
-    <div class="nav-links">
-      <a href="#properties">Explore Lands</a>
-      <a href="#features">Investments</a>
-      <a href="#contact">Contact</a>
-    </div>
-    <a href="#properties" class="nav-pill">View Properties</a>
-  </nav>
-
-  <!-- ── Hero ────────────────────────────────────────────── -->
-  <section id="hero" aria-label="Hero">
-    <p class="hero-eyebrow">Premium Land &amp; Real Estate · Sri Lanka</p>
-    <h1 class="hero-h1">Sithuliya</h1>
-    <p class="hero-sub">Redefining modern land ownership &amp; premium real estate investments — where terrain meets technology and legacy meets the future.</p>
-    <div class="hero-cta-row">
-      <a href="#properties" class="btn-primary">Explore Properties</a>
-      <a href="#features" class="btn-secondary">
-        Our Vision
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-          <line x1="3" y1="8" x2="13" y2="8"/>
-          <polyline points="9 4 13 8 9 12"/>
-        </svg>
+<!-- Header -->
+<header class="main-header">
+  <div class="container header-container">
+    <div class="logo-area">
+      <a href="#" style="display:flex;align-items:center;gap:12px;text-decoration:none;">
+        <img src="logo.png" alt="" class="logo-img" onerror="this.style.display='none'">
+        <div class="logo-text">
+          <span>Ceylon</span>
+          <span>Helpcare Services</span>
+        </div>
       </a>
     </div>
-    <div class="scroll-indicator" aria-hidden="true">Scroll to explore</div>
-  </section>
 
-  <!-- ── Stats ───────────────────────────────────────────── -->
-  <section id="stats" aria-label="Key figures">
-    <div class="stat-cell">
-      <div class="stat-n">340<span class="stat-unit">+</span></div>
-      <div class="stat-lbl">Acres Transacted</div>
-    </div>
-    <div class="stat-cell">
-      <div class="stat-n">18</div>
-      <div class="stat-lbl">Prime Locations</div>
-    </div>
-    <div class="stat-cell">
-      <div class="stat-n">97<span class="stat-unit">%</span></div>
-      <div class="stat-lbl">Client Satisfaction</div>
-    </div>
-    <div class="stat-cell">
-      <div class="stat-n">12</div>
-      <div class="stat-lbl">Years of Excellence</div>
-    </div>
-  </section>
+    <button class="mobile-menu-btn" onclick="document.getElementById('navContactWrapper').classList.toggle('active')">
+      <i class="fa-solid fa-bars"></i>
+    </button>
 
-  <!-- ── Properties ──────────────────────────────────────── -->
-  <section id="properties" aria-label="Featured properties">
-    <div class="section-eyebrow">Featured Listings</div>
-    <h2 class="section-title">Lands curated for<br>exceptional futures</h2>
-    <p class="section-body">Every parcel is survey-verified, title-cleared, and selected for long-term appreciation potential.</p>
-
-    <div class="cards-grid">
-
-      <!-- Card 1 -->
-      <article class="prop-card" data-tilt aria-label="Sithuliya Elegance">
-        <div class="card-glare" aria-hidden="true"></div>
-        <div class="card-number" aria-hidden="true">01</div>
-        <div class="card-badge"><span class="badge-dot" aria-hidden="true"></span>Available Now</div>
-        <h3 class="card-title">Sithuliya<br>Elegance</h3>
-        <div class="card-loc">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-          Kandy District, Central Province
-        </div>
-        <p class="card-desc">A 4.2-acre highland parcel overlooking the Mahaweli valley. Natural stream access, perimeter boulders, and panoramic sunrise exposure make this an exceptional residential development prospect.</p>
-        <div class="card-footer">
-          <div class="card-price">
-            <small>Starting from</small>
-            LKR 8.4M / Perch
-          </div>
-          <div class="card-arrow" aria-hidden="true">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="3" y1="8" x2="13" y2="8"/><polyline points="9 4 13 8 9 12"/></svg>
-          </div>
-        </div>
-      </article>
-
-      <!-- Card 2 -->
-      <article class="prop-card" data-tilt aria-label="Prime Horizons">
-        <div class="card-glare" aria-hidden="true"></div>
-        <div class="card-number" aria-hidden="true">02</div>
-        <div class="card-badge"><span class="badge-dot" aria-hidden="true" style="animation-delay:.4s"></span>New Release</div>
-        <h3 class="card-title">Prime<br>Horizons</h3>
-        <div class="card-loc">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-          Gampaha, Western Province
-        </div>
-        <p class="card-desc">A 2.8-acre commercial-grade plot at the intersection of two provincial arterials, 600m from Gampaha interchange. Zoned for mixed-use development, survey-clear title, full utility connectivity.</p>
-        <div class="card-footer">
-          <div class="card-price">
-            <small>Starting from</small>
-            LKR 14.2M / Perch
-          </div>
-          <div class="card-arrow" aria-hidden="true">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="3" y1="8" x2="13" y2="8"/><polyline points="9 4 13 8 9 12"/></svg>
-          </div>
-        </div>
-      </article>
-
-      <!-- Card 3 -->
-      <article class="prop-card" data-tilt aria-label="The Vertex Estate">
-        <div class="card-glare" aria-hidden="true"></div>
-        <div class="card-number" aria-hidden="true">03</div>
-        <div class="card-badge"><span class="badge-dot" aria-hidden="true" style="animation-delay:.8s;background:var(--gold)"></span>Limited</div>
-        <h3 class="card-title">The Vertex<br>Estate</h3>
-        <div class="card-loc">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-          Nuwara Eliya, Uva Province
-        </div>
-        <p class="card-desc">Three contiguous highland lots at 1,890m elevation within a gated precinct. Established eucalyptus canopy, mist climate, and exclusive access road — ideal for conservation estate or luxury retreat.</p>
-        <div class="card-footer">
-          <div class="card-price">
-            <small>Starting from</small>
-            LKR 22M / Perch
-          </div>
-          <div class="card-arrow" aria-hidden="true">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="3" y1="8" x2="13" y2="8"/><polyline points="9 4 13 8 9 12"/></svg>
-          </div>
-        </div>
-      </article>
-
-    </div>
-  </section>
-
-  <!-- ── Features ────────────────────────────────────────── -->
-  <section id="features" aria-label="Why Sithuliya">
-
-    <div>
-      <div class="section-eyebrow">Why Sithuliya</div>
-      <h2 class="section-title">Land is not just soil —<br>it is inheritance.</h2>
-      <p class="section-body" style="max-width:380px">Three principles that make every Sithuliya investment a decision you will never regret.</p>
-
-      <ul class="feat-list" role="list">
-        <li class="feat-item">
-          <div class="feat-icon" aria-hidden="true">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="1"/><path d="M8 21h8M12 17v4"/></svg>
-          </div>
-          <div>
-            <h3 class="feat-h">Digital Title Verification</h3>
-            <p class="feat-p">Every parcel is cross-verified through the Land Registry and Survey Department. Zero encumbrances, guaranteed clear deed before listing.</p>
-          </div>
-        </li>
-        <li class="feat-item" style="transition-delay:.1s">
-          <div class="feat-icon" aria-hidden="true">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          </div>
-          <div>
-            <h3 class="feat-h">Bespoke Investment Advisory</h3>
-            <p class="feat-p">Our strategists design personalised land portfolios aligned with your long-term appreciation curve and capital objectives.</p>
-          </div>
-        </li>
-        <li class="feat-item" style="transition-delay:.2s">
-          <div class="feat-icon" aria-hidden="true">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
-          </div>
-          <div>
-            <h3 class="feat-h">Nationwide Coverage</h3>
-            <p class="feat-p">From Colombo's western corridor to the tea-country highlands — 18 active land banks across 7 provinces and growing.</p>
-          </div>
-        </li>
-      </ul>
-    </div>
-
-    <div class="glass-panel">
-      <blockquote class="gp-quote">"The finest investment on earth is earth itself — and we have made it our life's work to give you the finest earth."</blockquote>
-      <p class="gp-attr">— Sithuliya Philosophy</p>
-      <div class="gp-divider"></div>
-      <div class="gp-metric">
-        <div>
-          <div class="gp-m-n">340<span style="font-size:20px;font-weight:300">+</span></div>
-          <div class="gp-m-l">Acres transacted</div>
-        </div>
-        <div>
-          <div class="gp-m-n">18</div>
-          <div class="gp-m-l">Active land banks</div>
-        </div>
-        <div>
-          <div class="gp-m-n">97<span style="font-size:20px;font-weight:300">%</span></div>
-          <div class="gp-m-l">Client satisfaction</div>
-        </div>
-        <div>
-          <div class="gp-m-n">12</div>
-          <div class="gp-m-l">Years excellence</div>
-        </div>
-      </div>
-    </div>
-
-  </section>
-
-  <!-- ── Contact ──────────────────────────────────────────── -->
-  <section id="contact" aria-label="Contact">
-    <div class="section-eyebrow" style="justify-content:center">Begin Your Journey</div>
-    <h2 class="section-title">Ready to claim<br>your ground?</h2>
-    <p class="section-body">Speak with a Sithuliya advisor and receive a curated selection of properties matched to your vision and investment horizon.</p>
-    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
-      <a href="mailto:invest@sithuliya.lk" class="btn-primary">Reach Our Advisors</a>
-      <a href="tel:+94112345678" class="btn-secondary">
-        +94 11 234 5678
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="width:14px;height:14px"><line x1="3" y1="8" x2="13" y2="8"/><polyline points="9 4 13 8 9 12"/></svg>
-      </a>
-    </div>
-  </section>
-
-  <!-- ── Footer ───────────────────────────────────────────── -->
-  <footer>
-    <div class="footer-top">
-      <div>
-        <div class="footer-brand">Sithuliya</div>
-        <p class="footer-tagline">Premium land ownership and real estate investment for those who understand that the finest wealth is rooted in the earth.</p>
-      </div>
-      <div class="footer-col">
-        <h5>Explore</h5>
+    <div class="nav-contact-wrapper" id="navContactWrapper">
+      <nav class="main-nav">
         <ul>
-          <li><a href="#properties">Land Listings</a></li>
-          <li><a href="#features">Investment Guide</a></li>
-          <li><a href="#">Market Reports</a></li>
-          <li><a href="#">Land Bank Index</a></li>
+          <li><a href="index.html" class="active" data-i18n="nav-home">Home</a></li>
+          <li><a href="about.html" data-i18n="nav-about">About Us</a></li>
+          <li><a href="#services"><span data-i18n="nav-services">Services</span> <i class="fa-solid fa-chevron-down" style="font-size:0.7em"></i></a></li>
+          <li><a href="https://wa.me/94774428268" target="_blank" data-i18n="nav-contact">Contact Us</a></li>
         </ul>
-      </div>
-      <div class="footer-col">
-        <h5>Company</h5>
-        <ul>
-          <li><a href="#">Our Story</a></li>
-          <li><a href="#">The Team</a></li>
-          <li><a href="#">Press</a></li>
-          <li><a href="#">Careers</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h5>Legal</h5>
-        <ul>
-          <li><a href="#">Privacy Policy</a></li>
-          <li><a href="#">Terms of Service</a></li>
-          <li><a href="#">Deed Verification</a></li>
-          <li><a href="#">Dispute Process</a></li>
-        </ul>
+      </nav>
+
+      <div class="header-contact">
+        <div class="phone-icon-wrapper"><i class="fa-solid fa-phone"></i></div>
+        <div class="phone-info">
+          <span data-i18n="call-us">Call Us Anytime</span>
+          <strong>+94 77 44 28 268</strong>
+        </div>
+        <a href="https://wa.me/94774428268" target="_blank" class="btn btn-primary">
+          <i class="fa-regular fa-calendar-check"></i> <span data-i18n="book-now">Book Now</span>
+        </a>
+        <button class="lang-toggle-btn">සිංහල</button>
       </div>
     </div>
-    <div class="footer-bottom">
-      <span>© 2025 Sithuliya (Pvt) Ltd. All rights reserved.</span>
-      <span>Colombo · Kandy · Galle · Nuwara Eliya</span>
+  </div>
+</header>
+
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="container hero-container">
+    <div class="hero-content">
+      <div class="trust-badge">
+        <i class="fa-solid fa-heart"></i>
+        <span data-i18n="hero-badge">YOUR TRUST, OUR RESPONSIBILITY</span>
+      </div>
+      <h2 class="hero-title" data-i18n="hero-title">
+        Trusted Care.<br><span class="text-green">Better Living.</span>
+      </h2>
+      <p class="hero-desc" data-i18n="hero-desc">
+        Professional care and home services at your doorstep with 100% safety, responsibility and experienced staff.
+      </p>
+
+      <div class="hero-features">
+        <div class="feature-item">
+          <i class="fa-regular fa-circle-check"></i>
+          <span data-i18n="feat-trusted">Trusted &<br>Reliable</span>
+        </div>
+        <div class="feature-item">
+          <i class="fa-solid fa-user-group"></i>
+          <span data-i18n="feat-trained">Trained &<br>Experienced</span>
+        </div>
+        <div class="feature-item">
+          <i class="fa-regular fa-heart"></i>
+          <span data-i18n="feat-comp">Compassionate<br>Care</span>
+        </div>
+        <div class="feature-item">
+          <i class="fa-solid fa-tag"></i>
+          <span data-i18n="feat-price">Affordable<br>Pricing</span>
+        </div>
+      </div>
+
+      <div class="hero-actions">
+        <a href="#services" class="btn btn-primary">
+          <span data-i18n="btn-services">Our Services</span> <i class="fa-solid fa-arrow-right"></i>
+        </a>
+        <a href="https://wa.me/94774428268" target="_blank" class="btn btn-outline">
+          <span data-i18n="btn-contact">Contact Us</span> <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </div>
     </div>
-  </footer>
 
-</div><!-- #page -->
+    <!-- 3D Organic Sculptural Hero Visual -->
+    <div class="hero-image-area">
+      <div class="hero-sculpture-wrap">
+        <div class="sculpture-glow sculpture-glow-1"></div>
+        <div class="sculpture-glow sculpture-glow-2"></div>
 
+        <!-- Floating stat chips -->
+        <div class="hero-chip hero-chip-1">
+          <i class="fa-solid fa-shield-halved"></i> 100% Safe & Reliable
+        </div>
+        <div class="hero-chip hero-chip-2">
+          <i class="fa-solid fa-star" style="color:#f59e0b"></i> Trusted by Families
+        </div>
+        <div class="hero-chip hero-chip-3">
+          <i class="fa-solid fa-location-dot" style="color:#3b82c4"></i> Kurunegala & Around
+        </div>
 
-<!-- ═══════════════════════════════════════════════════════════
-     SCRIPTS
-     ═══════════════════════════════════════════════════════════ -->
+        <div class="hero-img-frame">
+          <img src="hero-bg.jpeg" alt="Caregiver with elderly woman" class="hero-img">
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Wave divider -->
+<div class="wave-divider">
+  <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+    <path d="M0,30 C240,60 480,0 720,30 C960,60 1200,0 1440,30 L1440,60 L0,60 Z"
+      fill="rgba(212,83,158,0.06)"/>
+    <path d="M0,40 C360,10 720,60 1080,20 C1260,5 1380,35 1440,40 L1440,60 L0,60 Z"
+      fill="rgba(147,197,232,0.08)"/>
+  </svg>
+</div>
+
+<!-- Services Section -->
+<section id="services" class="services-section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-title-wrapper">
+        <i class="fa-solid fa-leaf text-green"></i>
+        <h2 data-i18n="srv-title">Our Services</h2>
+        <i class="fa-solid fa-leaf text-green" style="transform:scaleX(-1)"></i>
+      </div>
+      <p data-i18n="srv-subtitle">One Call. Many Solutions.</p>
+    </div>
+
+    <div class="services-grid">
+      <!-- Nursing Care -->
+      <div class="service-card">
+        <div class="card-img-wrapper">
+          <img src="service-nursing.jpg" alt="Nursing Care">
+          <div class="service-icon icon-nursing"><i class="fa-solid fa-plus"></i></div>
+        </div>
+        <div class="card-content">
+          <h3 class="text-green" data-i18n="srv-nursing-title">1. Nursing Care</h3>
+          <p data-i18n="srv-nursing-desc">Professional patient care, elderly care, wound dressing, BP & sugar checks, saline & cannula, and more.</p>
+          <button class="btn btn-primary btn-sm btn-nursing" onclick="openModal('modal-nursing')">
+            <span data-i18n="btn-learn">Learn More</span> <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Beauty Services -->
+      <div class="service-card">
+        <div class="card-img-wrapper">
+          <img src="service-beauty.jpg" alt="Beauty Services">
+          <div class="service-icon icon-beauty"><i class="fa-solid fa-face-smile"></i></div>
+        </div>
+        <div class="card-content">
+          <h3 class="text-pink" data-i18n="srv-beauty-title">2. Beauty Services</h3>
+          <p data-i18n="srv-beauty-desc">Bridal & event makeup, facials, clean-ups, eyebrow shaping and all beauty treatments.</p>
+          <button class="btn btn-primary btn-sm btn-beauty" onclick="openModal('modal-beauty')">
+            <span data-i18n="btn-learn">Learn More</span> <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Home & Garden Cleaning -->
+      <div class="service-card">
+        <div class="card-img-wrapper">
+          <img src="service-cleaning.jpg" alt="Home & Garden Cleaning">
+          <div class="service-icon icon-cleaning"><i class="fa-solid fa-broom"></i></div>
+        </div>
+        <div class="card-content">
+          <h3 class="text-blue" data-i18n="srv-cleaning-title">3. Home & Garden Cleaning</h3>
+          <p data-i18n="srv-cleaning-desc">House, office & building cleaning, garden maintenance, laundry and ironing services.</p>
+          <button class="btn btn-primary btn-sm btn-cleaning" onclick="openModal('modal-cleaning')">
+            <span data-i18n="btn-learn">Learn More</span> <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Driving Services -->
+      <div class="service-card">
+        <div class="card-img-wrapper">
+          <img src="service-driving.jpg" alt="Driving Services">
+          <div class="service-icon icon-driving"><i class="fa-solid fa-car"></i></div>
+        </div>
+        <div class="card-content">
+          <h3 class="text-orange" data-i18n="srv-driving-title">4. Driving Services</h3>
+          <p data-i18n="srv-driving-desc">Professional male & female drivers for any distance or urgent trips. Safe, reliable & comfortable.</p>
+          <button class="btn btn-primary btn-sm btn-driving" onclick="openModal('modal-driving')">
+            <span data-i18n="btn-learn">Learn More</span> <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Wave divider 2 -->
+<div class="wave-divider">
+  <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+    <path d="M0,20 C360,55 720,0 1080,40 C1260,55 1380,15 1440,20 L1440,60 L0,60 Z"
+      fill="rgba(147,197,232,0.07)"/>
+  </svg>
+</div>
+
+<!-- Bottom Info Banner -->
+<section class="bottom-banner">
+  <div class="container">
+    <div class="banner-container">
+      <div class="banner-item">
+        <i class="fa-regular fa-shield-check banner-icon"></i>
+        <div class="banner-text">
+          <h4 data-i18n="b-safe-title">100% Safe & Reliable</h4>
+          <p data-i18n="b-safe-desc">Your safety is our top priority.</p>
+        </div>
+      </div>
+      <div class="banner-divider"></div>
+      <div class="banner-item">
+        <i class="fa-solid fa-user-group banner-icon"></i>
+        <div class="banner-text">
+          <h4 data-i18n="b-staff-title">Trained & Experienced Staff</h4>
+          <p data-i18n="b-staff-desc">Well trained, kind & experienced workers.</p>
+        </div>
+      </div>
+      <div class="banner-divider"></div>
+      <div class="banner-item">
+        <i class="fa-solid fa-circle-dollar-to-slot banner-icon"></i>
+        <div class="banner-text">
+          <h4 data-i18n="b-price-title">Affordable Pricing</h4>
+          <p data-i18n="b-price-desc">Quality service within your budget.</p>
+        </div>
+      </div>
+      <div class="banner-divider"></div>
+      <div class="banner-item">
+        <i class="fa-solid fa-location-dot banner-icon"></i>
+        <div class="banner-text">
+          <h4 data-i18n="b-area-title">Service Area</h4>
+          <p data-i18n="b-area-desc">Kurunegala City & All Surrounding Areas</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Modal: Nursing -->
+<div id="modal-nursing" class="modal">
+  <div class="modal-content">
+    <span class="close-btn" onclick="closeModal('modal-nursing')">&times;</span>
+    <h3 class="text-green" data-i18n="modal-nursing-title">Nursing Care Details</h3>
+    <p data-i18n="modal-nursing-p1">Our professional nursing care includes comprehensive support tailored to your needs. Services cover elderly care, post-surgical recovery, wound dressing, regular BP & sugar monitoring, saline & cannula management, and medication administration.</p>
+    <p data-i18n="modal-nursing-p2">We ensure that our trained staff provides compassionate and reliable care in the comfort of your home.</p>
+    <button class="btn btn-primary btn-nursing mt-15" onclick="openGlassModal('Nursing Care', 'modal-nursing')">
+      <i class="fa-regular fa-comment-dots"></i> <span data-i18n="modal-inquire">Inquire Now</span>
+    </button>
+  </div>
+</div>
+
+<!-- Modal: Beauty -->
+<div id="modal-beauty" class="modal">
+  <div class="modal-content">
+    <span class="close-btn" onclick="closeModal('modal-beauty')">&times;</span>
+    <h3 class="text-pink" data-i18n="modal-beauty-title">Beauty Services Details</h3>
+    <p data-i18n="modal-beauty-p1">Experience premium beauty services right at your doorstep. We specialize in bridal and event makeup, offering customizable packages to make you look stunning on your special day.</p>
+    <p data-i18n="modal-beauty-p2">Our experts also provide facials, deep clean-ups, precise eyebrow shaping, and a variety of other top-tier beauty treatments.</p>
+    <button class="btn btn-primary btn-beauty mt-15" onclick="openGlassModal('Beauty Services', 'modal-beauty')">
+      <i class="fa-regular fa-comment-dots"></i> <span data-i18n="modal-book">Book Appointment</span>
+    </button>
+  </div>
+</div>
+
+<!-- Modal: Cleaning -->
+<div id="modal-cleaning" class="modal">
+  <div class="modal-content">
+    <span class="close-btn" onclick="closeModal('modal-cleaning')">&times;</span>
+    <h3 class="text-blue" data-i18n="modal-cleaning-title">Home & Garden Cleaning Details</h3>
+    <p data-i18n="modal-cleaning-p1">Maintain a pristine environment with our comprehensive cleaning solutions. We offer house, office, and building cleaning with attention to detail.</p>
+    <p data-i18n="modal-cleaning-p2">Additionally, our services extend to garden maintenance, laundry, and ironing to keep your entire property looking its best.</p>
+    <button class="btn btn-primary btn-cleaning mt-15" onclick="openGlassModal('Home & Garden Cleaning', 'modal-cleaning')">
+      <i class="fa-regular fa-comment-dots"></i> <span data-i18n="modal-quote">Get a Quote</span>
+    </button>
+  </div>
+</div>
+
+<!-- Modal: Driving -->
+<div id="modal-driving" class="modal">
+  <div class="modal-content">
+    <span class="close-btn" onclick="closeModal('modal-driving')">&times;</span>
+    <h3 class="text-orange" data-i18n="modal-driving-title">Driving Services Details</h3>
+    <p data-i18n="modal-driving-p1">Need a reliable driver? We provide professional male and female drivers for both short local trips and long-distance travel, as well as urgent transport needs.</p>
+    <p data-i18n="modal-driving-p2">Your safety and comfort are our top priorities, ensuring a stress-free journey every time.</p>
+    <button class="btn btn-primary btn-driving mt-15" onclick="openGlassModal('Driving Services', 'modal-driving')">
+      <i class="fa-regular fa-comment-dots"></i> <span data-i18n="modal-request">Request Driver</span>
+    </button>
+  </div>
+</div>
+
+<!-- Liquid Glass Inquiry Modal -->
+<div id="glassInquiryModal" class="glass-modal">
+  <div class="glass-modal-content">
+    <button class="glass-close-btn" onclick="closeGlassModal()"><i class="fa-solid fa-xmark"></i></button>
+    <div class="glass-modal-header">
+      <h3 data-i18n="glass-title">Book a Service</h3>
+    </div>
+    <form id="inquiryForm" onsubmit="sendWhatsApp(event)">
+      <div class="glass-form-group">
+        <label data-i18n="glass-name">Full Name</label>
+        <input type="text" id="waName" class="glass-input" required placeholder="John Doe">
+      </div>
+      <div class="glass-form-group">
+        <label data-i18n="glass-phone">Contact Number</label>
+        <input type="tel" id="waPhone" class="glass-input" required placeholder="07XXXXXXXX">
+      </div>
+      <div class="glass-form-group">
+        <label data-i18n="glass-address">Home Address</label>
+        <input type="text" id="waAddress" class="glass-input" required placeholder="123 Main St, Kurunegala">
+      </div>
+      <div class="glass-form-group">
+        <label data-i18n="glass-service">Service Type</label>
+        <select id="waService" class="glass-input" required>
+          <option value="Nursing Care" data-i18n="opt-nursing">Nursing Care</option>
+          <option value="Beauty Services" data-i18n="opt-beauty">Beauty Services</option>
+          <option value="Home & Garden Cleaning" data-i18n="opt-cleaning">Home & Garden Cleaning</option>
+          <option value="Driving Services" data-i18n="opt-driving">Driving Services</option>
+          <option value="Other" data-i18n="opt-other">Other</option>
+        </select>
+      </div>
+      <button type="submit" class="glass-submit-btn">
+        <i class="fa-brands fa-whatsapp"></i> <span data-i18n="glass-submit">Send to WhatsApp</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="main-footer">
+  <div class="container footer-inner">
+    <div class="footer-logo">
+      <span>Ceylon</span>
+      <span>Helpcare Services</span>
+    </div>
+    <div class="footer-copyright">&copy; 2026 Ceylon Helpcare Services. All Rights Reserved.</div>
+    <div class="footer-credit">
+      Designed & Developed by
+      <a href="#" target="_blank">Lankaknot Software Solution</a>
+    </div>
+  </div>
+</footer>
+
 <script>
-/* ============================================================
-   1. WEBGL SCENE — Three.js r128
-   ============================================================ */
-(function initWebGL() {
+/* ── Modal logic ── */
+function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-  const canvas   = document.getElementById('webgl-canvas');
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
-  renderer.setClearColor(0x000000, 1);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+window.onclick = function(e) {
+  if (e.target.classList.contains('modal')) e.target.style.display = 'none';
+  if (e.target.classList.contains('glass-modal')) closeGlassModal();
+};
 
-  const scene  = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(52, innerWidth / innerHeight, 0.1, 300);
-  camera.position.set(0, 14, 32);
-  camera.lookAt(0, 0, 0);
+const glassModal = document.getElementById('glassInquiryModal');
 
-  /* ── GLSL: Classic Perlin noise 2D ──────────────────────── */
-  const GLSL_PERLIN = /* glsl */`
-    vec4 _permute(vec4 x){return mod(((x*34.0)+1.0)*x,289.0);}
-    vec2 _fade(vec2 t){return t*t*t*(t*(t*6.0-15.0)+10.0);}
-    float cnoise(vec2 P){
-      vec4 Pi=floor(P.xyxy)+vec4(0.,0.,1.,1.);
-      vec4 Pf=fract(P.xyxy)-vec4(0.,0.,1.,1.);
-      Pi=mod(Pi,289.0);
-      vec4 ix=Pi.xzxz, iy=Pi.yyww, fx=Pf.xzxz, fy=Pf.yyww;
-      vec4 i=_permute(_permute(ix)+iy);
-      vec4 gx=2.0*fract(i*0.0243902439)-1.0;
-      vec4 gy=abs(gx)-0.5;
-      vec4 tx=floor(gx+0.5); gx=gx-tx;
-      vec2 g00=vec2(gx.x,gy.x), g10=vec2(gx.y,gy.y);
-      vec2 g01=vec2(gx.z,gy.z), g11=vec2(gx.w,gy.w);
-      vec4 norm=1.1547005383*vec4(dot(g00,g00),dot(g01,g01),dot(g10,g10),dot(g11,g11));
-      norm=min(norm,1.0);
-      g00*=norm.x; g01*=norm.y; g10*=norm.z; g11*=norm.w;
-      vec2 f=_fade(Pf.xy);
-      float n00=dot(g00,vec2(fx.x,fy.x));
-      float n10=dot(g10,vec2(fx.y,fy.y));
-      float n01=dot(g01,vec2(fx.z,fy.z));
-      float n11=dot(g11,vec2(fx.w,fy.w));
-      return 2.3*mix(mix(n00,n10,f.x),mix(n01,n11,f.x),f.y);
-    }
-  `;
+function openGlassModal(serviceName, parentModalId) {
+  if (parentModalId) closeModal(parentModalId);
+  const sel = document.getElementById('waService');
+  for (let i = 0; i < sel.options.length; i++) {
+    if (sel.options[i].value === serviceName) { sel.selectedIndex = i; break; }
+  }
+  glassModal.style.display = 'flex';
+  setTimeout(() => glassModal.classList.add('show'), 10);
+}
 
-  /* ── Vertex shader ──────────────────────────────────────── */
-  const vertShader = /* glsl */`
-    ${GLSL_PERLIN}
-    uniform float uTime;
-    uniform vec2  uMouse;
-    varying float vElev;
-    varying vec2  vUv2;
+function closeGlassModal() {
+  glassModal.classList.remove('show');
+  setTimeout(() => { glassModal.style.display = 'none'; }, 300);
+}
 
-    void main(){
-      vUv2 = uv;
-      vec3 p = position;
+function sendWhatsApp(e) {
+  e.preventDefault();
+  const name    = document.getElementById('waName').value;
+  const phone   = document.getElementById('waPhone').value;
+  const address = document.getElementById('waAddress').value;
+  const service = document.getElementById('waService').value;
+  const text = `Hello CeylonCare! I would like to book a service.%0A%0A*Name:* ${name}%0A*Contact:* ${phone}%0A*Address:* ${address}%0A*Service Required:* ${service}%0A%0APlease get back to me.`;
+  window.open(`https://wa.me/94774428268?text=${text}`, '_blank');
+  closeGlassModal();
+}
 
-      // Three octaves of noise for organic terrain
-      float n1 = cnoise(p.xz * 0.22 + uTime * 0.10);
-      float n2 = cnoise(p.xz * 0.55 + uTime * 0.07 + vec2(4.1, 2.3));
-      float n3 = cnoise(p.xz * 1.20 + uTime * 0.04 + vec2(9.7, 5.1));
-      float elev = n1 * 3.2 + n2 * 1.2 + n3 * 0.5;
+/* ── Floating particles ── */
+(function() {
+  const canvas = document.getElementById('particles-canvas');
+  const ctx    = canvas.getContext('2d');
+  let W, H, particles = [];
 
-      // Subtle mouse-driven warp: creates a ripple at cursor projection
-      vec2  mp   = uMouse * 18.0;
-      float dist = length(p.xz - mp);
-      elev += sin(dist * 0.4 - uTime * 1.5) * 0.8 * exp(-dist * dist * 0.025);
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
 
-      p.y += elev;
-      vElev = elev;
+  const colors = [
+    'rgba(240,168,208,', // pink
+    'rgba(147,197,232,', // blue
+    'rgba(200,160,240,', // lavender
+    'rgba(255,200,100,', // warm gold
+  ];
 
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
-    }
-  `;
-
-  /* ── Fragment shader ────────────────────────────────────── */
-  const fragShader = /* glsl */`
-    uniform float uTime;
-    varying float vElev;
-    varying vec2  vUv2;
-
-    void main(){
-      // ---- Base color ramp: black → deep teal → emerald neon ----
-      vec3 col0   = vec3(0.00, 0.00, 0.00);        // void black
-      vec3 colMid = vec3(0.01, 0.20, 0.22);        // deep teal shadow
-      vec3 colHi  = vec3(0.00, 1.00, 0.67);        // emerald neon peak
-
-      float t = clamp((vElev + 2.0) / 5.5, 0.0, 1.0);
-      vec3 col = mix(col0, colMid, smoothstep(0.0, 0.35, t));
-      col       = mix(col,  colHi,  smoothstep(0.30, 1.0,  t));
-
-      // ---- Wireframe grid overlay --------------------------------
-      // Derived from screen-space derivatives for sub-pixel sharpness
-      vec2 grid      = abs(fract(vUv2 * 52.0 - 0.5) - 0.5) / fwidth(vUv2 * 52.0);
-      float lineMask = 1.0 - min(min(grid.x, grid.y), 1.0);
-      // Grid lines tinted toward neon emerald at peaks, deep teal at base
-      vec3 lineCol = mix(
-        vec3(0.00, 0.35, 0.35),
-        vec3(0.00, 1.00, 0.67),
-        smoothstep(0.25, 0.85, t)
-      );
-      col = mix(col, lineCol * 1.25, lineMask * 0.50);
-
-      // ---- Specular shimmer on high ridges -----------------------
-      float shimmer = pow(max(0.0, t - 0.72), 2.5)
-                    * (sin(vElev * 5.0 + uTime * 2.2) * 0.5 + 0.5);
-      col += vec3(0.00, 1.00, 0.70) * shimmer * 0.45;
-
-      // ---- Smooth alpha vignette — seamless fade into black ------
-      vec2  uvc     = vUv2 - 0.5;
-      float radDist = length(uvc * vec2(1.3, 1.0));
-      float alpha   = smoothstep(0.52, 0.22, radDist);
-      // Also fade vertically toward back edge
-      float zFade   = smoothstep(1.0, 0.5, vUv2.y);
-      alpha *= zFade;
-
-      gl_FragColor = vec4(col, alpha * 0.88);
-    }
-  `;
-
-  /* ── Terrain mesh: 240×240 segments for dense wireframe ── */
-  const geoTerrain = new THREE.PlaneGeometry(90, 90, 240, 240);
-  geoTerrain.rotateX(-Math.PI * 0.38);
-
-  const matTerrain = new THREE.ShaderMaterial({
-    vertexShader: vertShader,
-    fragmentShader: fragShader,
-    uniforms: {
-      uTime:  { value: 0.0 },
-      uMouse: { value: new THREE.Vector2(0, 0) },
-    },
-    transparent: true,
-    depthWrite: false,
-    side: THREE.DoubleSide,
-  });
-  scene.add(new THREE.Mesh(geoTerrain, matTerrain));
-
-  /* ── Gold particle dust ─────────────────────────────────── */
-  const PARTICLES = 2800;
-  const pPos = new Float32Array(PARTICLES * 3);
-  const pVel = new Float32Array(PARTICLES);       // individual drift speed
-  const pAlp = new Float32Array(PARTICLES);       // base opacity seed
-
-  for (let i = 0; i < PARTICLES; i++) {
-    pPos[i*3+0] = (Math.random() - 0.5) * 140;
-    pPos[i*3+1] = (Math.random() - 0.5) * 70;
-    pPos[i*3+2] = (Math.random() - 0.5) * 90 - 10;
-    pVel[i]     = 0.004 + Math.random() * 0.014;
-    pAlp[i]     = Math.random();
+  function spawn() {
+    return {
+      x:     Math.random() * W,
+      y:     H + 10,
+      r:     1.5 + Math.random() * 3.5,
+      speed: 0.3 + Math.random() * 0.7,
+      drift: (Math.random() - 0.5) * 0.4,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      alpha: 0,
+      life:  0,
+      maxLife: 200 + Math.random() * 300,
+    };
   }
 
-  const pGeo = new THREE.BufferGeometry();
-  pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
-  pGeo.setAttribute('aAlpha',   new THREE.BufferAttribute(pAlp, 1));
-
-  const pVert = /* glsl */`
-    attribute float aAlpha;
-    varying   float vA;
-    void main(){
-      vA = aAlpha;
-      vec4 mv = modelViewMatrix * vec4(position, 1.0);
-      gl_PointSize = (1.2 + aAlpha * 1.8) * (280.0 / -mv.z);
-      gl_Position  = projectionMatrix * mv;
-    }
-  `;
-  const pFrag = /* glsl */`
-    varying float vA;
-    void main(){
-      float d = distance(gl_PointCoord, vec2(0.5));
-      if(d > 0.5) discard;
-      float a = (1.0 - d * 2.0) * vA * 0.55;
-      // Soft gold colour
-      gl_FragColor = vec4(0.83, 0.69, 0.22, a);
-    }
-  `;
-  const pMat = new THREE.ShaderMaterial({
-    vertexShader: pVert, fragmentShader: pFrag,
-    transparent: true, depthWrite: false,
-  });
-  const dustPoints = new THREE.Points(pGeo, pMat);
-  scene.add(dustPoints);
-
-  /* ── LERP camera target ─────────────────────────────────── */
-  let targetX = 0, targetY = 0;    // where we want the camera to go
-  let currentX = 0, currentY = 0;  // current smoothed position
-
-  document.addEventListener('mousemove', e => {
-    const nx = (e.clientX / innerWidth  - 0.5);
-    const ny = (e.clientY / innerHeight - 0.5);
-    matTerrain.uniforms.uMouse.value.set(nx, -ny);
-    targetX = nx * 4.5;
-    targetY = -ny * 2.5;
-  });
-
-  /* ── Resize handler ─────────────────────────────────────── */
-  function onResize() {
-    camera.aspect = innerWidth / innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(innerWidth, innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  for (let i = 0; i < 40; i++) {
+    const p = spawn();
+    p.y = Math.random() * H;
+    p.life = Math.random() * p.maxLife;
+    particles.push(p);
   }
-  window.addEventListener('resize', onResize);
-  onResize();
-
-  /* ── Animation loop ─────────────────────────────────────── */
-  const clock = new THREE.Clock();
 
   function tick() {
-    requestAnimationFrame(tick);
-    const t = clock.getElapsedTime();
+    ctx.clearRect(0, 0, W, H);
 
-    matTerrain.uniforms.uTime.value = t;
-
-    // Smooth camera LERP (interpolation factor ~0.04 = silky 60fps)
-    currentX += (targetX - currentX) * 0.04;
-    currentY += (targetY - currentY) * 0.04;
-    camera.position.x = currentX;
-    camera.position.y = 14 + currentY;
-    camera.lookAt(currentX * 0.25, 0, 0);
-
-    // Drift particles toward viewer on Z, wrap when they pass camera
-    const pos = pGeo.attributes.position.array;
-    for (let i = 0; i < PARTICLES; i++) {
-      pos[i*3+2] += pVel[i];
-      if (pos[i*3+2] > 50) pos[i*3+2] = -90;
-      pos[i*3+0] += Math.sin(t * 0.18 + i * 0.05) * 0.003; // gentle lateral sway
+    // Subtle wavy lines
+    ctx.save();
+    for (let w = 0; w < 3; w++) {
+      ctx.beginPath();
+      const t = Date.now() / 3000 + w * 1.2;
+      ctx.moveTo(0, H * 0.3 + w * 60);
+      for (let x = 0; x <= W; x += 8) {
+        const y = H * 0.3 + w * 60 + Math.sin(x / 160 + t) * 22 + Math.sin(x / 80 + t * 0.7) * 10;
+        ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = `rgba(${w===0?'212,83,158':w===1?'59,130,196':'170,100,220'},0.05)`;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
     }
-    pGeo.attributes.position.needsUpdate = true;
+    ctx.restore();
 
-    renderer.render(scene, camera);
+    // Particles
+    particles.forEach((p, i) => {
+      p.life++;
+      p.y -= p.speed;
+      p.x += p.drift;
+      const ratio = p.life / p.maxLife;
+      p.alpha = ratio < 0.15 ? ratio / 0.15 : ratio > 0.85 ? (1 - ratio) / 0.15 : 1;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.color + (p.alpha * 0.55) + ')';
+      ctx.fill();
+
+      if (p.life >= p.maxLife || p.y < -20) particles[i] = spawn();
+    });
+
+    if (particles.length < 50) particles.push(spawn());
+
+    requestAnimationFrame(tick);
   }
   tick();
-
-})(); // end initWebGL
-
-
-/* ============================================================
-   2. CUSTOM CURSOR
-   ============================================================ */
-(function initCursor() {
-  const dot  = document.getElementById('cursor-dot');
-  const ring = document.getElementById('cursor-ring');
-  if (!dot) return;
-
-  let cx = 0, cy = 0;   // dot tracks instantly
-  let rx = 0, ry = 0;   // ring lags behind
-
-  window.addEventListener('mousemove', e => { cx = e.clientX; cy = e.clientY; });
-
-  function loop() {
-    rx += (cx - rx) * 0.11;
-    ry += (cy - ry) * 0.11;
-    dot.style.left  = cx + 'px';
-    dot.style.top   = cy + 'px';
-    ring.style.left = rx + 'px';
-    ring.style.top  = ry + 'px';
-    requestAnimationFrame(loop);
-  }
-  loop();
 })();
-
-
-/* ============================================================
-   3. NAVBAR — add .nav-solid class on scroll
-   ============================================================ */
-(function initNavbar() {
-  const nav = document.getElementById('navbar');
-  window.addEventListener('scroll', () => {
-    nav.classList.toggle('nav-solid', window.scrollY > 50);
-  }, { passive: true });
-})();
-
-
-/* ============================================================
-   4. PROPERTY CARDS — 3D tilt + glare on mouse hover
-   ============================================================ */
-(function initTiltCards() {
-  document.querySelectorAll('[data-tilt]').forEach(card => {
-    const glare = card.querySelector('.card-glare');
-
-    card.addEventListener('mousemove', e => {
-      const rect = card.getBoundingClientRect();
-      const cx   = (e.clientX - rect.left) / rect.width  - 0.5; // -0.5 … 0.5
-      const cy   = (e.clientY - rect.top)  / rect.height - 0.5;
-
-      // Tilt angles: max ±12° on Y, ±8° on X
-      const rotY = cx * 24;
-      const rotX = -cy * 16;
-
-      card.style.transform =
-        `perspective(900px) rotateY(${rotY}deg) rotateX(${rotX}deg) scale(1.015)`;
-
-      // Move glare radial gradient to follow cursor
-      if (glare) {
-        const gx = (e.clientX - rect.left) / rect.width  * 100;
-        const gy = (e.clientY - rect.top)  / rect.height * 100;
-        glare.style.setProperty('--gx', gx + '%');
-        glare.style.setProperty('--gy', gy + '%');
-      }
-    });
-
-    card.addEventListener('mouseleave', () => {
-      card.style.transform =
-        'perspective(900px) rotateY(0deg) rotateX(0deg) scale(1)';
-    });
-  });
-})();
-
-
-/* ============================================================
-   5. INTERSECTION OBSERVER — scroll reveal
-   ============================================================ */
-(function initReveal() {
-  const io = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.classList.add('visible');
-        io.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.15 });
-
-  document.querySelectorAll('.stat-cell, .feat-item').forEach(el => {
-    io.observe(el);
-  });
-})();
-
 </script>
+<script src="chatbot.js"></script>
 </body>
 </html>
